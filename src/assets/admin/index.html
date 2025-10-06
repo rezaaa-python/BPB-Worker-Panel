@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Panel</h1>
+        <div class="login-section">
+            <input type="password" id="admin-key" placeholder="Enter Admin Key">
+            <button id="login-btn">Login</button>
+        </div>
+        <div class="panel-section" style="display: none;">
+            <h2>User Management</h2>
+            <div class="user-form">
+                <h3>Add/Update User</h3>
+                <input type="text" id="user-uuid" placeholder="User UUID (leave blank to generate)">
+                <input type="datetime-local" id="user-expiration">
+                <input type="text" id="user-notes" placeholder="Notes">
+                <button id="save-user-btn">Save User</button>
+            </div>
+            <div class="user-list">
+                <h3>Users</h3>
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>UUID</th>
+                            <th>Expiration</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- User rows will be inserted here -->
+                    </tbody>
+                </table>
+                <button id="refresh-users-btn">Refresh</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

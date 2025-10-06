@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Configuration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Personal Configuration</h1>
+
+        <div class="section configs">
+            <h2>Subscription Links</h2>
+            <p>Add one of these links to your preferred client (e.g., Hiddify, v2rayNG, Clash Meta).</p>
+            <div class="config-item">
+                <label>Xray-core (v2rayNG, etc.):</label>
+                <div class="input-group">
+                    <input type="text" id="xray-link" readonly>
+                    <button class="copy-btn" data-target="xray-link">Copy</button>
+                </div>
+            </div>
+            <div class="config-item">
+                <label>Sing-box (Hiddify, etc.):</label>
+                <div class="input-group">
+                    <input type="text" id="singbox-link" readonly>
+                    <button class="copy-btn" data-target="singbox-link">Copy</button>
+                </div>
+            </div>
+            <div class="config-item">
+                <label>Clash-meta:</label>
+                <div class="input-group">
+                    <input type="text" id="clash-link" readonly>
+                    <button class="copy-btn" data-target="clash-link">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section network-info">
+            <h2>Network Information</h2>
+            <div class="info-grid">
+                <div class="info-card client-info">
+                    <h3>Your Information</h3>
+                    <p><strong>IP:</strong> <span id="client-ip">Loading...</span></p>
+                    <p><strong>ISP:</strong> <span id="client-isp">Loading...</span></p>
+                    <p><strong>Location:</strong> <span id="client-location">Loading...</span></p>
+                    <p><strong>Risk Score:</strong> <span id="client-risk">Loading...</span></p>
+                </div>
+                <div class="info-card proxy-info">
+                    <h3>Proxy Information</h3>
+                    <p><strong>IP:</strong> <span id="proxy-ip">Loading...</span></p>
+                </div>
+            </div>
+            <button id="refresh-info-btn">Refresh</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

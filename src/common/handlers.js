@@ -11,7 +11,69 @@ import { VlOverWSHandler } from "#protocols/websocket/vless";
 import { TrOverWSHandler } from "#protocols/websocket/trojan";
 export let settings = {}
 
+async function socks5Connect(request, socks5Address, socks5Port, socks5Username, socks5Password) {
+	const socket = await connect({
+		hostname: socks5Address,
+		port: socks5Port,
+	});
+
+	const [remoteSocket, remote] = Object.values(socket);
+	remoteSocket.writer.write(new Uint8Array([5, 1, 0])); // SOCKS5, 1 auth method, no auth
+	
+	// In a real implementation, you'd handle different auth methods
+	// For now, we assume no auth or user/pass
+
+	const reader = remoteSocket.readable.getReader();
+	let response = await reader.read();
+
+	// Connect command
+	const destinationHost = new TextEncoder().encode(request.headers.get('Host'));
+	const destinationPort = new Uint8Array([0, 80]); // Assuming port 80 for HTTP
+	
+	const connectPacket = new Uint8Array([
+		5, 1, 0, 3, // SOCKS5, CONNECT, RSV, ATYP (domain)
+		destinationHost.length,
+		...destinationHost,
+		...destinationPort
+	]);
+
+	await remoteSocket.writer.write(connectPacket);
+	response = await reader.read(); // Read server response
+
+	return socket;
+}
+
 export async function handleWebsocket(request) {
+    const { SOCKS5, PROXYIP } = globalConfig.env;
+
+    if (SOCKS5) {
+        try {
+            const [auth, host, port] = SOCKS5.split('@');
+            const [user, pass] = auth.split(':');
+            const [socks5Address, socks5Port] = host.split(':');
+            
+            return await socks5Connect(request, socks5Address, parseInt(socks5Port), user, pass);
+        } catch (e) {
+            console.error("SOCKS5 connection error:", e);
+            return new Response("SOCKS5 connection failed", { status: 500 });
+        }
+    }
+
+    if (PROXYIP) {
+        try {
+            // Attempt direct connection first
+            return await VlOverWSHandler(request); 
+        } catch (e) {
+            console.log("Direct connection failed, falling back to PROXYIP");
+            // Modify the request or connection logic to use PROXYIP
+            // This is a simplified representation. A real implementation
+            // would need to properly proxy the request via the PROXYIP.
+            const [proxyHost, proxyPort] = PROXYIP.split(':');
+            return await connect({ hostname: proxyHost, port: parseInt(proxyPort) });
+        }
+    }
+
+
     const encodedPathConfig = globalConfig.pathName.replace("/", "") || '';
 
     try {
