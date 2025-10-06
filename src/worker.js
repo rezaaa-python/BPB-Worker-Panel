@@ -11,7 +11,9 @@ import admin_style from "./assets/admin/style.css";
 import user_page from "./assets/user/index.html";
 import user_script from "./assets/user/script.js";
 import user_style from "./assets/user/style.css";
-import { get_clash_config, get_sing_box_config, get_xray_config } from './configs/utils';
+import { getXrayConfig as get_xray_config } from './configs/xray';
+import { getSingBoxConfig as get_sing_box_config } from './configs/sing-box';
+import { getClashConfig as get_clash_config } from './configs/clash';
 import { handleDoH } from './doh';
 
 const Touched = Symbol.for("Touched");

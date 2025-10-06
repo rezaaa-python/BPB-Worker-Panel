@@ -1,7 +1,8 @@
 import { getConfigAddresses, extractWireguardParams, base64ToDecimal, generateRemark, randomUpperCase, resolveDNS, isDomain, getDomain, generateWsPath } from '#configs/utils';
 import { getDataset } from '#kv';
 import { globalConfig, httpConfig } from '#common/init';
-import { settings } from '#common/handlers'
+import { settings } from "#common/handlers";
+import { xray_template } from "#configs/xray";
 
 async function buildXrayDNS(outboundAddrs, domainToStaticIPs, isWorkerLess, isWarp, customDns, customDnsHosts) {
     function buildDnsServer(address, domains, expectIPs, skipFallback, tag) {
@@ -779,100 +780,8 @@ async function buildXrayWorkerLessConfig() {
     return [cfDnsConfig, googleDnsConfig];
 }
 
-export async function getXrayCustomConfigs(env, isFragment) {
-    let chainProxy;
-
-    if (settings.outProxy) {
-        try {
-            chainProxy = buildXrayChainOutbound();
-        } catch (error) {
-            console.log('An error occured while parsing chain proxy: ', error);
-            chainProxy = undefined;
-
-            const proxySettings = await env.kv.get("proxySettings", { type: 'json' });
-            await env.kv.put("proxySettings", JSON.stringify({
-                ...proxySettings,
-                outProxy: '',
-                outProxyParams: {}
-            }));
-        }
-    }
-
-    const Addresses = await getConfigAddresses(settings.cleanIPs, settings.VLTRenableIPv6, settings.customCdnAddrs, isFragment);
-    const totalPorts = settings.ports.filter(port => isFragment ? httpConfig.defaultHttpsPorts.includes(port) : true);
-
-    let protocols = [];
-    if (settings.VLConfigs) protocols.push(atob('VkxFU1M='));
-    if (settings.TRConfigs) protocols.push(atob('VHJvamFu'));
-
-    let configs = [];
-    let outbounds = {
-        proxies: [],
-        chains: []
-    };
-
-    const fragmentOutbound = isFragment
-        ? buildFreedomOutbound(true, false, 'fragment')
-        : null;
-
-    for (const protocol of protocols) {
-        let protocolIndex = 1;
-        for (const port of totalPorts) {
-            for (const addr of Addresses) {
-                const isCustomAddr = settings.customCdnAddrs.includes(addr) && !isFragment;
-                const configType = isCustomAddr ? 'C' : isFragment ? 'F' : '';
-                const sni = isCustomAddr ? settings.customCdnSni : randomUpperCase(httpConfig.hostName);
-                const host = isCustomAddr ? settings.customCdnHost : httpConfig.hostName;
-                const remark = generateRemark(protocolIndex, port, addr, settings.cleanIPs, protocol, configType);
-                const customConfig = await buildXrayConfig(remark, false, chainProxy, false, false, false, [addr], null);
-
-                const outbound = protocol === atob('VkxFU1M=')
-                    ? buildXrayVLOutbound('proxy', addr, port, host, sni, isFragment, isCustomAddr)
-                    : buildXrayTROutbound('proxy', addr, port, host, sni, isFragment, isCustomAddr);
-
-                if (fragmentOutbound) {
-                    customConfig.outbounds.push(fragmentOutbound);
-                }
-
-                customConfig.outbounds.unshift({ ...outbound });
-                outbounds.proxies.push(outbound);
-
-                if (chainProxy) {
-                    customConfig.outbounds.unshift(structuredClone(chainProxy));
-                    outbounds.chains.push(structuredClone(chainProxy));
-                }
-
-                configs.push(customConfig);
-                protocolIndex++;
-            }
-        }
-    }
-
-    outbounds.proxies.forEach((outbound, index) => outbound.tag = `prox-${index + 1}`);
-
-    if (chainProxy) outbounds.chains.forEach((outbound, index) => {
-        outbound.tag = `chain-${index + 1}`;
-        outbound.streamSettings.sockopt.dialerProxy = `prox-${index + 1}`;
-    });
-
-    const totalOutbounds = [...outbounds.chains, ...outbounds.proxies];
-    const bestPing = await buildXrayBestPingConfig(Addresses, chainProxy, totalOutbounds, isFragment);
-    const finalConfigs = [...configs, bestPing];
-
-    if (isFragment) {
-        const bestFragment = await buildXrayBestFragmentConfig(chainProxy, outbounds.proxies[0]);
-        const workerLessConfigs = await buildXrayWorkerLessConfig();
-        finalConfigs.push(bestFragment, ...workerLessConfigs);
-    }
-
-    return new Response(JSON.stringify(finalConfigs, null, 4), {
-        status: 200,
-        headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-            'CDN-Cache-Control': 'no-store'
-        }
-    });
+export function getXrayConfig(user_uuid, env) {
+    return get_xray_config(user_uuid, env);
 }
 
 export async function getXrayWarpConfigs(request, env, isPro, isKnocker) {

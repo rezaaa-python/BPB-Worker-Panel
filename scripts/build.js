@@ -97,8 +97,13 @@ async function buildWorker() {
         external: ['cloudflare:sockets'],
         platform: 'browser',
         target: 'es2020',
+        loader: {
+            '.html': 'text',
+            '.css': 'text',
+        },
         define: {
-            __PANEL_HTML_CONTENT__: htmls['panel'] ?? '""',
+            __FAVICON_BASE64__: JSON.stringify(faviconBase64),
+            __PANEL_HTML_CONTENT__: htmls['panel'],
             __LOGIN_HTML_CONTENT__: htmls['login'] ?? '""',
             __ERROR_HTML_CONTENT__: htmls['error'] ?? '""',
             __SECRETS_HTML_CONTENT__: htmls['secrets'] ?? '""',
