@@ -107,9 +107,30 @@ async function buildWorker() {
             __LOGIN_HTML_CONTENT__: htmls['login'] ?? '""',
             __ERROR_HTML_CONTENT__: htmls['error'] ?? '""',
             __SECRETS_HTML_CONTENT__: htmls['secrets'] ?? '""',
+            __ADMIN_HTML_CONTENT__: htmls['admin'] ?? '""',
+			__USER_HTML_CONTENT__: htmls['user'] ?? '""',
             __ICON__: JSON.stringify(faviconBase64),
             __VERSION__: JSON.stringify(version)
-        }
+        },
+		plugins: [
+            {
+                name: 'raw-loader',
+                setup(build) {
+                    build.onResolve({ filter: /\?raw$/ }, (args) => {
+                        return {
+                            path: join(args.resolveDir, args.path.replace(/\?raw$/, '')),
+                            namespace: 'raw-loader',
+                        };
+                    });
+                    build.onLoad({ filter: /.*/, namespace: 'raw-loader' }, (args) => {
+                        return {
+                            contents: readFileSync(args.path, 'utf-8'),
+                            loader: 'text',
+                        };
+                    });
+                },
+            },
+        ]
     });
 
     console.log(`${success} Worker built successfuly!`);
@@ -181,4 +202,3 @@ function stringToHex(str) {
     const bytes = encoder.encode(str);
     return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
 }
-

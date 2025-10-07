@@ -1,14 +1,14 @@
 import { globalConfig, init, initHttp, initWs } from './common/init';
 import { fallback, serveIcon, renderSecrets, handlePanel, handleSubscriptions, handleLogin, handleError, handleWebsocket as handleWs } from './common/handlers';
 import { logout } from './auth';
-import panel from "./assets/panel/index.html";
-import secrets_page from "./assets/secrets/index.html";
+import panel_style from "./assets/panel/style.css?raw";
+import panel_script from "./assets/panel/script.js?raw";
+import login_style from "./assets/login/style.css?raw";
+import login_script from "./assets/login/script.js?raw";
 import secrets_script from "./assets/secrets/script.js?raw";
 import secrets_style from "./assets/secrets/style.css?raw";
-import admin_page from "./assets/admin/index.html";
 import admin_script from "./assets/admin/script.js?raw";
 import admin_style from "./assets/admin/style.css?raw";
-import user_page from "./assets/user/index.html";
 import user_script from "./assets/user/script.js?raw";
 import user_style from "./assets/user/style.css?raw";
 import { getXrayConfig as get_xray_config } from './configs/xray';

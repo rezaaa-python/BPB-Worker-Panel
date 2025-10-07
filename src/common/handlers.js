@@ -360,11 +360,23 @@ async function renderPanel(request, env) {
         }
     }
 
-    const html = hexToString(__PANEL_HTML_CONTENT__);
-
-    return new Response(html, {
-        headers: { 'Content-Type': 'text/html' }
-    });
+	const html = new HTMLRewriter()
+		.on('head', {
+			element(e) {
+				e.append(`<style>${panel_style}</style>`, { html: true });
+			}
+		})
+		.on('body', {
+			element(e) {
+				e.append(`<script>${panel_script}</script>`, { html: true });
+			}
+		})
+		.transform(new Response(hexToString(__PANEL_HTML_CONTENT__), {
+			headers: {
+				"content-type": "text/html; charset=utf-8",
+			}
+		}));
+	return html;
 }
 
 async function renderLogin(request, env) {
@@ -373,19 +385,43 @@ async function renderLogin(request, env) {
         return Response.redirect(`${httpConfig.urlOrigin}/panel`, 302);
     }
 
-    const html = hexToString(__LOGIN_HTML_CONTENT__);
-
-    return new Response(html, {
-        headers: { 'Content-Type': 'text/html' }
-    });
+	const html = new HTMLRewriter()
+		.on('head', {
+			element(e) {
+				e.append(`<style>${login_style}</style>`, { html: true });
+			}
+		})
+		.on('body', {
+			element(e) {
+				e.append(`<script>${login_script}</script>`, { html: true });
+			}
+		})
+		.transform(new Response(hexToString(__LOGIN_HTML_CONTENT__), {
+			headers: {
+				"content-type": "text/html; charset=utf-8",
+			}
+		}));
+	return html;
 }
 
 export async function renderSecrets() {
-    const html = hexToString(__SECRETS_HTML_CONTENT__);
-
-    return new Response(html, {
-        headers: { 'Content-Type': 'text/html' },
-    });
+	const html = new HTMLRewriter()
+		.on('head', {
+			element(e) {
+				e.append(`<style>${secrets_style}</style>`, { html: true });
+			}
+		})
+		.on('body', {
+			element(e) {
+				e.append(`<script>${secrets_script}</script>`, { html: true });
+			}
+		})
+		.transform(new Response(hexToString(__SECRETS_HTML_CONTENT__), {
+			headers: {
+				"content-type": "text/html; charset=utf-8",
+			}
+		}));
+	return html;
 }
 
 async function updateWarpConfigs(request, env) {
