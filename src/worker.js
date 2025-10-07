@@ -29,20 +29,23 @@ async function handleAdmin(url, request, env) {
 	switch (url.pathname) {
 		case "/admin/":
 		case "/admin":
-			return new Response(admin_page, {
-				status: 200,
-				headers: { "Content-Type": "text/html; charset=utf-8" },
-			});
-		case "/admin/script.js":
-			return new Response(admin_script, {
-				status: 200,
-				headers: { "Content-Type": "application/javascript; charset=utf-8" },
-			});
-		case "/admin/style.css":
-			return new Response(admin_style, {
-				status: 200,
-				headers: { "Content-Type": "text/css; charset=utf-8" },
-			});
+			const html = new HTMLRewriter()
+				.on('head', {
+					element(e) {
+						e.append(`<style>${globalConfig.assets.admin_style}</style>`, { html: true });
+					}
+				})
+				.on('body', {
+					element(e) {
+						e.append(`<script>${globalConfig.assets.admin_script}</script>`, { html: true });
+					}
+				})
+				.transform(new Response(hexToString(__ADMIN_HTML_CONTENT__), {
+					headers: {
+						"content-type": "text/html; charset=utf-8",
+					}
+				}));
+			return html;
 		default:
 			return new Response("Not Found", { status: 404 });
 	}
@@ -130,23 +133,27 @@ async function handleAdminApi(request, env, apiPath) {
 }
 
 async function handleUserPage(url, env, userId) {
+	const html = new HTMLRewriter()
+		.on('head', {
+			element(e) {
+				e.append(`<style>${globalConfig.assets.user_style}</style>`, { html: true });
+			}
+		})
+		.on('body', {
+			element(e) {
+				e.append(`<script>${globalConfig.assets.user_script}</script>`, { html: true });
+			}
+		})
+		.transform(new Response(hexToString(__USER_HTML_CONTENT__), {
+			headers: {
+				"content-type": "text/html; charset=utf-8",
+			}
+		}));
+
 	switch (url.pathname) {
 		case `/${userId}`:
 		case `/${userId}/`:
-			return new Response(user_page, {
-				status: 200,
-				headers: { "Content-Type": "text/html; charset=utf-8" },
-			});
-		case `/${userId}/script.js`:
-			return new Response(user_script, {
-				status: 200,
-				headers: { "Content-Type": "application/javascript; charset=utf-8" },
-			});
-		case `/${userId}/style.css`:
-			return new Response(user_style, {
-				status: 200,
-				headers: { "Content-Type": "text/css; charset=utf-8" },
-			});
+			return html;
 		case `/${userId}/info`: {
 			const clientIp = globalConfig.clientIp;
 			const res = await fetch(`http://ip-api.com/json/${clientIp}?fields=status,message,country,regionName,city,isp,org,as,query,risk`);
