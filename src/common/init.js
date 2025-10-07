@@ -9,11 +9,15 @@ export function init(request, env, assets) {
     const { pathname } = new URL(request.url);
     const { UUID, TR_PASS, FALLBACK, DOH_URL } = env;
 
+    if (!isValidUUID(env.UUID)) {
+        throw new Error(`Invalid or missing UUID. Please set a valid UUID in your environment variables. You can generate one at https://www.uuidgenerator.net/`, { cause: "init" });
+    }
+
     Object.assign(globalConfig, {
         env,
 		assets,
         pathName: pathname,
-        uuid: isValidUUID(UUID) ? UUID : "6a5562b1-b440-4793-a26c-6a6a2133f636",
+        uuid: env.UUID,
         trojanPass: TR_PASS || '',
         fallbackDomain: FALLBACK || "www.google.com",
         dohURL: DOH_URL || "https://1.1.1.1/dns-query"
@@ -36,12 +40,10 @@ export function initWs(env) {
 export function initHttp(request, env) {
     const { pathname, origin, search } = new URL(request.url);
     const { SUB_PATH, kv } = env;
-    const { userID, TrPass } = globalConfig;
-    const searchParams = new URLSearchParams(search);
+    const { uuid, trojanPass } = globalConfig;
 
     if (!['/secrets', '/favicon.ico'].includes(pathname)) {
-        if (!userID || !TrPass) throw new Error(`Please set UUID and ${atob('VHJvamFu')} password first. Please visit <a href="${origin}/secrets" target="_blank">here</a> to generate them.`, { cause: "init" });
-        if (!isValidUUID(userID)) throw new Error(`Invalid UUID: ${userID}`, { cause: "init" });
+        if (!uuid || !trojanPass) throw new Error(`Please set UUID and ${atob('VHJvamFu')} password first. Please visit <a href="${origin}/secrets" target="_blank">here</a> to generate them.`, { cause: "init" });
         if (typeof kv !== 'object') throw new Error(`KV Dataset is not properly set! Please refer to <a href="${atob('aHR0cHM6Ly9iaWEtcGFpbi1iYWNoZS5naXRodWIuaW8vQlBCLVdvcmtlci1QYW5lbC8=')}" target="_blank">tutorials</a>.`, { cause: "init" });
     }
 
@@ -52,6 +54,6 @@ export function initHttp(request, env) {
         hostName: request.headers.get('Host'),
         client: searchParams.get('app'),
         urlOrigin: origin,
-        subPath: SUB_PATH || userID
+        subPath: SUB_PATH || uuid
     });
 }
