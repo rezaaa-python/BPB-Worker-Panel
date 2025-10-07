@@ -457,7 +457,7 @@ export async function respond(success, status, message, body, customHeaders) {
     });
 }
 
-function hexToString(hex) {
+export function hexToString(hex) {
     const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
     const decoder = new TextDecoder();
 

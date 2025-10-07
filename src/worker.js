@@ -1,5 +1,5 @@
 import { globalConfig, init, initHttp, initWs } from './common/init';
-import { fallback, serveIcon, renderSecrets, handlePanel, handleSubscriptions, handleLogin, handleError, handleWebsocket as handleWs } from './common/handlers';
+import { fallback, serveIcon, renderSecrets, handlePanel, handleSubscriptions, handleLogin, handleError, handleWebsocket as handleWs, hexToString } from './common/handlers';
 import { logout } from './auth';
 import panel_style from "./assets/panel/style.css?raw";
 import panel_script from "./assets/panel/script.js?raw";
