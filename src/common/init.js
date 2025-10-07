@@ -41,6 +41,7 @@ export function initHttp(request, env) {
     const { pathname, origin, search } = new URL(request.url);
     const { SUB_PATH, kv } = env;
     const { uuid, trojanPass } = globalConfig;
+    const searchParams = new URLSearchParams(search);
 
     if (!['/secrets', '/favicon.ico'].includes(pathname)) {
         if (!uuid || !trojanPass) throw new Error(`Please set UUID and ${atob('VHJvamFu')} password first. Please visit <a href="${origin}/secrets" target="_blank">here</a> to generate them.`, { cause: "init" });
