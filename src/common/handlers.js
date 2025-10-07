@@ -2,7 +2,7 @@ import { Authenticate, generateJWTToken, resetPassword } from "#auth";
 import { getClashNormalConfig, getClashWarpConfig } from "#configs/clash";
 import { extractWireguardParams } from "#configs/utils";
 import { getSingBoxCustomConfig, getSingBoxWarpConfig } from "#configs/sing-box";
-import { getXrayCustomConfigs, getXrayWarpConfigs } from "#configs/xray";
+import { getXrayConfig, getXrayWarpConfigs } from "#configs/xray";
 import { getDataset, updateDataset } from "#kv";
 import JSZip from "jszip";
 import { fetchWarpConfigs } from "#protocols/warp";

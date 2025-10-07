@@ -2,7 +2,6 @@ import { getConfigAddresses, extractWireguardParams, base64ToDecimal, generateRe
 import { getDataset } from '#kv';
 import { globalConfig, httpConfig } from '#common/init';
 import { settings } from "#common/handlers";
-import { xray_template } from "#configs/xray";
 
 async function buildXrayDNS(outboundAddrs, domainToStaticIPs, isWorkerLess, isWarp, customDns, customDnsHosts) {
     function buildDnsServer(address, domains, expectIPs, skipFallback, tag) {
@@ -663,7 +662,7 @@ async function buildXrayConfig(
     customDns,
     customDnsHosts
 ) {
-    const config = structuredClone(xrayConfigTemp);
+    const config = structuredClone(xray_template);
     config.remarks = remark;
 
     config.dns = await buildXrayDNS(outboundAddrs, domainToStaticIPs, isWorkerLess, isWarp, customDns, customDnsHosts);
@@ -860,7 +859,7 @@ export async function getXrayWarpConfigs(request, env, isPro, isKnocker) {
     });
 }
 
-const xrayConfigTemp = {
+export const xray_template = {
     remarks: "",
     log: {
         loglevel: "warning",

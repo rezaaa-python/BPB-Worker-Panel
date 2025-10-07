@@ -3,6 +3,10 @@ import { getDataset } from '#kv';
 import { globalConfig, httpConfig } from '#common/init';
 import { settings } from '#common/handlers'
 
+export async function getClashConfig(user_uuid, env) {
+	return get_clash_config(user_uuid, env);
+}
+
 async function buildClashDNS(isChain, isWarp) {
     const finalLocalDNS = settings.localDNS === 'localhost' ? 'system' : `${settings.localDNS}#DIRECT`;
     const isIPv6 = (settings.VLTRenableIPv6 && !isWarp) || (settings.warpEnableIPv6 && isWarp);

@@ -3,17 +3,17 @@ import { fallback, serveIcon, renderSecrets, handlePanel, handleSubscriptions, h
 import { logout } from './auth';
 import panel from "./assets/panel/index.html";
 import secrets_page from "./assets/secrets/index.html";
-import secrets_script from "./assets/secrets/script.js";
-import secrets_style from "./assets/secrets/style.css";
+import secrets_script from "./assets/secrets/script.js?raw";
+import secrets_style from "./assets/secrets/style.css?raw";
 import admin_page from "./assets/admin/index.html";
-import admin_script from "./assets/admin/script.js";
-import admin_style from "./assets/admin/style.css";
+import admin_script from "./assets/admin/script.js?raw";
+import admin_style from "./assets/admin/style.css?raw";
 import user_page from "./assets/user/index.html";
-import user_script from "./assets/user/script.js";
-import user_style from "./assets/user/style.css";
+import user_script from "./assets/user/script.js?raw";
+import user_style from "./assets/user/style.css?raw";
 import { getXrayConfig as get_xray_config } from './configs/xray';
 import { getSingBoxConfig as get_sing_box_config } from './configs/sing-box';
-import { getClashConfig as get_clash_config } from './configs/clash';
+import { getClashConfig as get_clash_config } from './configs/clash.js';
 import { handleDoH } from './doh';
 
 const Touched = Symbol.for("Touched");
