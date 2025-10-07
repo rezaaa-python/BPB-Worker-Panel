@@ -363,12 +363,12 @@ async function renderPanel(request, env) {
 	const html = new HTMLRewriter()
 		.on('head', {
 			element(e) {
-				e.append(`<style>${panel_style}</style>`, { html: true });
+				e.append(`<style>${globalConfig.assets.panel_style}</style>`, { html: true });
 			}
 		})
 		.on('body', {
 			element(e) {
-				e.append(`<script>${panel_script}</script>`, { html: true });
+				e.append(`<script>${globalConfig.assets.panel_script}</script>`, { html: true });
 			}
 		})
 		.transform(new Response(hexToString(__PANEL_HTML_CONTENT__), {
@@ -388,12 +388,12 @@ async function renderLogin(request, env) {
 	const html = new HTMLRewriter()
 		.on('head', {
 			element(e) {
-				e.append(`<style>${login_style}</style>`, { html: true });
+				e.append(`<style>${globalConfig.assets.login_style}</style>`, { html: true });
 			}
 		})
 		.on('body', {
 			element(e) {
-				e.append(`<script>${login_script}</script>`, { html: true });
+				e.append(`<script>${globalConfig.assets.login_script}</script>`, { html: true });
 			}
 		})
 		.transform(new Response(hexToString(__LOGIN_HTML_CONTENT__), {
@@ -408,12 +408,12 @@ export async function renderSecrets() {
 	const html = new HTMLRewriter()
 		.on('head', {
 			element(e) {
-				e.append(`<style>${secrets_style}</style>`, { html: true });
+				e.append(`<style>${globalConfig.assets.secrets_style}</style>`, { html: true });
 			}
 		})
 		.on('body', {
 			element(e) {
-				e.append(`<script>${secrets_script}</script>`, { html: true });
+				e.append(`<script>${globalConfig.assets.secrets_script}</script>`, { html: true });
 			}
 		})
 		.transform(new Response(hexToString(__SECRETS_HTML_CONTENT__), {

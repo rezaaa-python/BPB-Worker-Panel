@@ -1,19 +1,23 @@
 import { isValidUUID } from "#common/handlers";
-export const globalConfig = {};
+export const globalConfig = {
+	assets: {}
+};
 export const httpConfig = {};
 export const wsConfig = {};
 
-export function init(request, env) {
+export function init(request, env, assets) {
     const { pathname } = new URL(request.url);
     const { UUID, TR_PASS, FALLBACK, DOH_URL } = env;
 
     Object.assign(globalConfig, {
-        userID: UUID,
-        TrPass: TR_PASS,
+        env,
+		assets,
         pathName: pathname,
-        fallbackDomain: FALLBACK || 'speed.cloudflare.com',
-        dohURL: DOH_URL || 'https://cloudflare-dns.com/dns-query'
-    })
+        uuid: isValidUUID(UUID) ? UUID : "6a5562b1-b440-4793-a26c-6a6a2133f636",
+        trojanPass: TR_PASS || '',
+        fallbackDomain: FALLBACK || "www.google.com",
+        dohURL: DOH_URL || "https://1.1.1.1/dns-query"
+    });
 }
 
 export function initWs(env) {

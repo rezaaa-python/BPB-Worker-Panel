@@ -223,7 +223,20 @@ export default {
 	async fetch(request, env, ctx) {
 		try {
 			const upgradeHeader = request.headers.get('Upgrade');
-			init(request, env);
+			const assets = {
+				secrets_style,
+				secrets_script,
+				admin_style,
+				admin_script,
+				user_style,
+				user_script,
+				panel_style,
+				panel_script,
+				login_style,
+				login_script,
+			};
+	
+			init(request, env, assets);
 
 			if (upgradeHeader === 'websocket') {
 				initWs(env);
