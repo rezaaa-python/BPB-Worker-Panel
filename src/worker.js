@@ -54,7 +54,13 @@ async function handleAdmin(url, request, env) {
 async function handleAdminApi(request, env, apiPath) {
 	const { D1, ADMIN_KEY, KV } = env;
 
-	// Authentication
+	if (!D1) {
+		return new Response(JSON.stringify({ error: "Database binding 'D1' not found. Please configure the D1 database in your Cloudflare Pages project settings." }), {
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+
 	const authHeader = request.headers.get("Authorization") || "";
 	if (authHeader !== `Bearer ${ADMIN_KEY}`) {
 		return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -67,7 +73,6 @@ async function handleAdminApi(request, env, apiPath) {
 	const userIdMatch = apiPath.match(userIdRegex);
 
 	try {
-		// Ensure table exists
 		await D1.exec(`
 			CREATE TABLE IF NOT EXISTS users (
 				id TEXT PRIMARY KEY,
@@ -92,7 +97,6 @@ async function handleAdminApi(request, env, apiPath) {
 			const now = Math.floor(Date.now() / 1000);
 			const status = expiration_timestamp > now ? "active" : "expired";
 
-			// Check if user exists for upsert
 			const existingUser = await D1.prepare("SELECT id FROM users WHERE id = ?").bind(userId).first();
 
 			if (existingUser) {
@@ -105,7 +109,6 @@ async function handleAdminApi(request, env, apiPath) {
 				).bind(userId, expiration_timestamp, status, notes, now).run();
 			}
 			
-			// Invalidate KV cache
 			await KV.delete(`user:${userId}`);
 
 			return new Response(JSON.stringify({ success: true, id: userId }), { status: 201 });
@@ -114,7 +117,6 @@ async function handleAdminApi(request, env, apiPath) {
 		if (userIdMatch && request.method === "DELETE") {
 			const userId = userIdMatch[1];
 			await D1.prepare("DELETE FROM users WHERE id = ?").bind(userId).run();
-			// Also invalidate KV cache
 			await KV.delete(`user:${userId}`);
 			return new Response(null, { status: 204 });
 		}
@@ -180,18 +182,16 @@ async function isValidUser(uuid, env) {
 	const { KV, D1 } = env;
 	const cacheKey = `user:${uuid}`;
 
-	// 1. Check KV cache first
 	const cachedStatus = await KV.get(cacheKey);
 	if (cachedStatus) {
 		return cachedStatus === 'valid';
 	}
 
-	// 2. If not in cache, query D1
 	try {
 		const user = await D1.prepare("SELECT expiration_timestamp, status FROM users WHERE id = ?").bind(uuid).first();
 
 		if (!user) {
-			await KV.put(cacheKey, 'invalid', { expiration: 3600 }); // Cache invalid for 1 hour
+			await KV.put(cacheKey, 'invalid', { expiration: 3600 });
 			return false;
 		}
 
@@ -200,24 +200,21 @@ async function isValidUser(uuid, env) {
 
 		if (!isExpired && isActive) {
 			const remainingTime = user.expiration_timestamp - Math.floor(Date.now() / 1000);
-			await KV.put(cacheKey, 'valid', { expiration: Math.max(60, remainingTime) }); // Cache for remaining time
+			await KV.put(cacheKey, 'valid', { expiration: Math.max(60, remainingTime) });
 			return true;
 		} else {
-			await KV.put(cacheKey, 'invalid', { expiration: 3600 }); // Cache invalid for 1 hour
+			await KV.put(cacheKey, 'invalid', { expiration: 3600 });
 			return false;
 		}
 	} catch (e) {
 		console.error("D1 validation error:", e);
-		return false; // Fail closed
+		return false;
 	}
 }
 
 async function handleWebsocket(request, env) {
 	const url = new URL(request.url);
-	const userID = url.pathname.match
-		(
-			/^\/([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})$/
-		)?.[1];
+	const userID = url.pathname.substring(1);
 
 	if (!userID || !(await isValidUser(userID, env))) {
 		return new Response('Unauthorized', { status: 401 });
@@ -256,7 +253,7 @@ export default {
 				if (path.startsWith('/admin')) return await handleAdmin(url, request, env);
 				if (path.startsWith('/dns-query')) return await handleDoH(request);
 				
-				const userIdMatch = path.match(/^\/([0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})/);
+				const userIdMatch = path.match(/^\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
 				if (userIdMatch) {
 					const userResponse = await handleUserPage(url, env, userIdMatch[1]);
 					if (userResponse) return userResponse;
